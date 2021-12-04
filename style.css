@@ -14,14 +14,14 @@ body {
 .img-container {
     position: relative;
     z-index: -2;
-    margin: 5rem;
+    margin: 1rem;
     border: 1px dashed orange;
-    width: 30vw;
 }
 
 img {
-    width: 30vw;
+    
 }
+
 
 .blank-canvas {
     height: 100%;

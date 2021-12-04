@@ -12,6 +12,7 @@ let selectionSize = 30;
 // first, get image coordinates so we can compare with the cursor positions
 var sketchImg = document.getElementById("sketch-img");
 var rect = sketchImg.getBoundingClientRect();
+// console.log(rect);
 
 var cursorStartX, cursorStartY, cursorEndX, cursorEndY;
 
@@ -19,6 +20,18 @@ var cursorStartX, cursorStartY, cursorEndX, cursorEndY;
 window.addEventListener('resize', () => {
   rect = sketchImg.getBoundingClientRect();
 })
+
+// set up canvas
+let c = document.getElementsByClassName('blank-canvas')[0];
+
+let ctx = c.getContext('2d');
+
+// set the width and height so the image won't be too big
+ctx.canvas.width = rect.right - rect.left;
+ctx.canvas.height = rect.bottom - rect.top;
+
+rect = sketchImg.getBoundingClientRect();
+console.log(rect);
 
 // Get cursor position, when drag starts
 dragSelect.subscribe('dragstart', (e) => {
@@ -39,9 +52,13 @@ dragSelect.subscribe('callback', (e) => {
   // If the starting point is different from the end point,
   // compute the selected portion of the img
   if (Math.abs(cursorStartX - cursorEndX) >= selectionSize || Math.abs(cursorStartY - cursorEndY) >= selectionSize) {
+    
     var selectedFrame = computeSelected(cursorStartX, cursorStartY, cursorEndX, cursorEndY);
     drawSelectionBox(selectedFrame);
-    getSelectedRelative(selectedFrame);
+
+    var selectedFrameRelative = getSelectedRelative(selectedFrame);
+    drawSelectedImg(selectedFrameRelative);
+
   }
 })
 
@@ -83,7 +100,6 @@ let drawSelectionBox = (selectedFrame) => {
   div.style.bottom = (window.innerHeight - selectedFrame.bottom) + "px";
   div.style.right = (window.innerWidth - selectedFrame.right) + "px";
 
-  console.log(div);
   document.querySelector('body').appendChild(div);
 
   // clean up the variables
@@ -106,20 +122,47 @@ let getSelectedRelative = (selectedFrame) => {
     left: 0,
     top: 0,
     right: 0,
-    bottom: 0
+    bottom: 0,
+    width: 0,
+    height: 0
   };
 
   selectedFrameRelative.left = selectedFrame.left - rect.left;
-  selectedFrameRelative.right = rect.right - selectedFrame.right;
+  selectedFrameRelative.right = selectedFrame.right - rect.left;
   selectedFrameRelative.top = selectedFrame.top - rect.top;
-  selectedFrameRelative.bottom = rect.bottom - selectedFrame.bottom;
+  selectedFrameRelative.bottom = selectedFrame.bottom - rect.top;
+  selectedFrameRelative.width = selectedFrameRelative.right - selectedFrameRelative.left;
+  selectedFrameRelative.height = selectedFrameRelative.bottom - selectedFrameRelative.top;
 
-  console.log("selectedFrameRelative: ");
-  console.log(selectedFrameRelative);
+  // console.log("selectedFrameRelative: ");
+  // console.log(selectedFrameRelative.left);
+  // console.log(selectedFrameRelative.top);
+  // console.log(selectedFrameRelative.right);
+  // console.log(selectedFrameRelative.bottom);
+  // console.log(selectedFrameRelative.width);
+  // console.log(selectedFrameRelative.height);
 
   return selectedFrameRelative;
 }
 
+
 // draw that onto the same relative spot of the canvas
+let drawSelectedImg = (selectedFrameRelative) => {
+  
+  ctx.drawImage(sketchImg, 
+                selectedFrameRelative.left, 
+                selectedFrameRelative.top, 
+                selectedFrameRelative.width, 
+                selectedFrameRelative.height,
+                selectedFrameRelative.left, 
+                selectedFrameRelative.top,
+                selectedFrameRelative.width, 
+                selectedFrameRelative.height);
+}
 
 // for now, save it as an image object
+
+// var myImg = new Image();
+// myImg.src = './assets/sketch_sample.jpg';
+// console.log("My Image: ");
+// console.log(myImg);

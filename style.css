@@ -15,10 +15,17 @@ body {
     position: relative;
     z-index: -2;
     margin: 5rem;
+    border: 1px dashed orange;
+    width: 30vw;
 }
 
 img {
     width: 30vw;
+}
+
+.blank-canvas {
+    height: 100%;
+    width: 100%;
 }
 
 .selection-box {

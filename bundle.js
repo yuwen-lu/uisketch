@@ -6,6 +6,9 @@ let dragSelect = new DragSelect({
     selectables: document.getElementsByClassName('selectable-nodes')
 });
 
+// any selection smaller than this size will not be drawn
+let selectionSize = 30;
+
 
 // first, get image coordinates so we can compare with the cursor positions
 var sketchImg = document.getElementById("sketch-img");
@@ -17,6 +20,32 @@ var cursorStartX, cursorStartY, cursorEndX, cursorEndY;
 window.addEventListener('resize', () => {
   rect = sketchImg.getBoundingClientRect();
 })
+
+// Get cursor position, when drag starts
+dragSelect.subscribe('dragstart', (e) => {
+  // console.log(e);
+  cursorStartX = dragSelect.getCurrentCursorPosition()['x'];
+  cursorStartY = dragSelect.getCurrentCursorPosition()['y'];
+
+  console.log("cursorStartX: " + cursorStartX + ", cursorStartY: " + cursorStartY);
+})
+
+// Get cursor position, when drag ends
+dragSelect.subscribe('callback', (e) => {
+  // console.log(e);
+  cursorEndX = dragSelect.getCurrentCursorPosition()['x'];
+  cursorEndY = dragSelect.getCurrentCursorPosition()['y'];
+  console.log("cursorEndX: " + cursorEndX + ", cursorEndY: " + cursorEndY);
+  
+  // If the starting point is different from the end point,
+  // compute the selected portion of the img
+  if (Math.abs(cursorStartX - cursorEndX) >= selectionSize || Math.abs(cursorStartY - cursorEndY) >= selectionSize) {
+    var selectedFrame = computeSelected(cursorStartX, cursorStartY, cursorEndX, cursorEndY);
+    drawSelectionBox(selectedFrame);
+    getSelectedRelative(selectedFrame);
+  }
+})
+
 
 // define the function for computing the selected portion,
 // return an object with coordinates of the selected area
@@ -41,6 +70,8 @@ let computeSelected = (cursorStartX, cursorStartY, cursorEndX, cursorEndY) => {
   return selectedFrame;
 }
 
+
+
 // draw a frame around selected box
 let drawSelectionBox = (selectedFrame) => {
   var div = document.createElement("div");
@@ -48,6 +79,8 @@ let drawSelectionBox = (selectedFrame) => {
   div.style.position = "absolute";
   div.style.top = selectedFrame.top + "px";
   div.style.left = selectedFrame.left + "px";
+  // Here's a limitation: since we're using window's size, it will only work on 
+  // screens that are not scrollable
   div.style.bottom = (window.innerHeight - selectedFrame.bottom) + "px";
   div.style.right = (window.innerWidth - selectedFrame.right) + "px";
 
@@ -63,30 +96,34 @@ let drawSelectionBox = (selectedFrame) => {
   };
 }
 
-// Get cursor position, when drag starts
-dragSelect.subscribe('dragstart', (e) => {
-  // console.log(e);
-  cursorStartX = dragSelect.getCurrentCursorPosition()['x'];
-  cursorStartY = dragSelect.getCurrentCursorPosition()['y'];
 
-  console.log("cursorStartX: " + cursorStartX + ", cursorStartY: " + cursorStartY);
-})
+// THE NEXT SECTION IS FOR CANVAS
 
-// Get cursor position, when drag ends
-dragSelect.subscribe('callback', (e) => {
-  // console.log(e);
-  cursorEndX = dragSelect.getCurrentCursorPosition()['x'];
-  cursorEndY = dragSelect.getCurrentCursorPosition()['y'];
-  console.log("cursorEndX: " + cursorEndX + ", cursorEndY: " + cursorEndY);
-  
-  // If the starting point is different from the end point,
-  // compute the selected portion of the img
-  if (cursorStartX != cursorEndX || cursorStartY != cursorEndY) {
-    var selectedFrame = computeSelected(cursorStartX, cursorStartY, cursorEndX, cursorEndY);
-    drawSelectionBox(selectedFrame);
-  }
-})
+// first, when selecting a box, put that onto canvas with its position
 
+// we need to get its relative position to the image container
+let getSelectedRelative = (selectedFrame) => {
+  var selectedFrameRelative = {
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0
+  };
+
+  selectedFrameRelative.left = selectedFrame.left - rect.left;
+  selectedFrameRelative.right = rect.right - selectedFrame.right;
+  selectedFrameRelative.top = selectedFrame.top - rect.top;
+  selectedFrameRelative.bottom = rect.bottom - selectedFrame.bottom;
+
+  console.log("selectedFrameRelative: ");
+  console.log(selectedFrameRelative);
+
+  return selectedFrameRelative;
+}
+
+// draw that onto the same relative spot of the canvas
+
+// for now, save it as an image object
 },{"dragselect":2}],2:[function(require,module,exports){
 /***
 

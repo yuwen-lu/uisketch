@@ -188,27 +188,112 @@ let saveImg = (selectedFrameRelative) => {
   );
   // var saveImg = document.createElement('img');
   var saveImgSrc = saveCanvas.toDataURL("image/png");
-  console.log(saveImgSrc);
-  
+
   // var newTab = window.open();
   // newTab.document.body.innerHTML = '<img src="' + saveImgSrc + '"width="100px" height="100px">';
 
   // we'll use the url to send a post request to our server
-  var serverUrl = 'http://0882-35-232-71-19.ngrok.io///predict';
-  var xhr = new XMLHttpRequest;
+  var serverUrl = "http://39b8-35-232-71-19.ngrok.io/predict";
+  var xhr = new XMLHttpRequest();
   xhr.open("POST", serverUrl, true);
-  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader("Content-Type", "application/json");
   var message = JSON.stringify({
-    url: saveImgSrc
+    url: saveImgSrc,
   });
-  
 
   xhr.send(message);
 
   xhr.onreadystatechange = () => {
     if (xhr.readyState == XMLHttpRequest.DONE) {
-        alert(xhr.responseText);
+      alert(xhr.responseText);
+      switch (xhr.responseText) {
+        case "image":
+          var imageImg = new Image();
+          imageImg.onload = () => {
+            drawComponent(imageImg, selectedFrameRelative);
+          };
+          imageImg.src = "./assets/digital_components/image.png";
+
+          console.log("It's an image!");
+          break;
+        case "radio_button_unchecked":
+          var switchImg = new Image();
+          switchImg.onload = () => {
+            drawComponent(switchImg, selectedFrameRelative);
+          };
+          switchImg.src = "./assets/digital_components/switch.png";
+
+          break;
+        case "radio_button_checked":
+          var switchImg = new Image();
+          switchImg.onload = () => {
+            drawComponent(switchImg, selectedFrameRelative);
+          };
+          switchImg.src = "./assets/digital_components/switch.png";
+
+          break;
+        case "switch_disabled":
+          var switchImg = new Image();
+          switchImg.onload = () => {
+            drawComponent(switchImg, selectedFrameRelative);
+          };
+          switchImg.src = "./assets/digital_components/switch.png";
+
+          break;
+        case "switch_enabled":
+          var switchImg = new Image();
+          switchImg.onload = () => {
+            drawComponent(switchImg, selectedFrameRelative);
+          };
+          switchImg.src = "./assets/digital_components/switch.png";
+
+          break;
+        case "card":
+          var cardImg = new Image();
+          cardImg.onload = () => {
+            drawComponent(cardImg, selectedFrameRelative);
+          };
+          cardImg.src = "./assets/digital_components/card.png";
+          break;
+        case "text_area":
+          var textImg = new Image();
+          textImg.onload = () => {
+            drawComponent(textImg, selectedFrameRelative);
+          };
+          textImg.src = "./assets/digital_components/text.png";
+
+          break;
+        case "text_field":
+          var textImg = new Image();
+          textImg.onload = () => {
+            drawComponent(textImg, selectedFrameRelative);
+          };
+          textImg.src = "./assets/digital_components/text.png";
+
+          break;
+        case "label":
+          var textImg = new Image();
+          textImg.onload = () => {
+            drawComponent(textImg, selectedFrameRelative);
+          };
+          textImg.src = "./assets/digital_components/text.png";
+
+          break;
+        default:
+          console.log("I don't recognize it :(");
+      }
     }
   };
+};
 
+let drawComponent = (component, selectedFrameRelative) => {
+  console.log(component);
+  console.log(ctx);
+  ctx.drawImage(
+    component,
+    selectedFrameRelative.left,
+    selectedFrameRelative.top,
+    selectedFrameRelative.width,
+    selectedFrameRelative.height
+  );
 };

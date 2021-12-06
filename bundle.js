@@ -1,14 +1,13 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 // Drag Selection
-var DragSelect = require('dragselect');
+var DragSelect = require("dragselect");
 
 let dragSelect = new DragSelect({
-    selectables: document.getElementsByClassName('selectable-nodes')
+  selectables: document.getElementsByClassName("selectable-nodes"),
 });
 
 // any selection smaller than this size will not be drawn
 let selectionSize = 30;
-
 
 // first, get image coordinates so we can compare with the cursor positions
 var sketchImg = document.getElementById("sketch-img");
@@ -18,14 +17,14 @@ var rect = sketchImg.getBoundingClientRect();
 var cursorStartX, cursorStartY, cursorEndX, cursorEndY;
 
 // get the sketch image position every time the window changes
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   rect = sketchImg.getBoundingClientRect();
-})
+});
 
 // set up canvas
-let c = document.getElementsByClassName('blank-canvas')[0];
+let c = document.getElementsByClassName("blank-canvas")[0];
 
-let ctx = c.getContext('2d');
+let ctx = c.getContext("2d");
 
 // set the width and height so the image won't be too big
 ctx.canvas.width = rect.right - rect.left;
@@ -35,34 +34,43 @@ rect = sketchImg.getBoundingClientRect();
 console.log(rect);
 
 // Get cursor position, when drag starts
-dragSelect.subscribe('dragstart', (e) => {
+dragSelect.subscribe("dragstart", (e) => {
   // console.log(e);
-  cursorStartX = dragSelect.getCurrentCursorPosition()['x'];
-  cursorStartY = dragSelect.getCurrentCursorPosition()['y'];
+  cursorStartX = dragSelect.getCurrentCursorPosition()["x"];
+  cursorStartY = dragSelect.getCurrentCursorPosition()["y"];
 
-  console.log("cursorStartX: " + cursorStartX + ", cursorStartY: " + cursorStartY);
-})
+  console.log(
+    "cursorStartX: " + cursorStartX + ", cursorStartY: " + cursorStartY
+  );
+});
 
 // Get cursor position, when drag ends
-dragSelect.subscribe('callback', (e) => {
+dragSelect.subscribe("callback", (e) => {
   // console.log(e);
-  cursorEndX = dragSelect.getCurrentCursorPosition()['x'];
-  cursorEndY = dragSelect.getCurrentCursorPosition()['y'];
+  cursorEndX = dragSelect.getCurrentCursorPosition()["x"];
+  cursorEndY = dragSelect.getCurrentCursorPosition()["y"];
   console.log("cursorEndX: " + cursorEndX + ", cursorEndY: " + cursorEndY);
-  
+
   // If the starting point is different from the end point,
   // compute the selected portion of the img
-  if (Math.abs(cursorStartX - cursorEndX) >= selectionSize || Math.abs(cursorStartY - cursorEndY) >= selectionSize) {
-    
-    var selectedFrame = computeSelected(cursorStartX, cursorStartY, cursorEndX, cursorEndY);
+  if (
+    Math.abs(cursorStartX - cursorEndX) >= selectionSize ||
+    Math.abs(cursorStartY - cursorEndY) >= selectionSize
+  ) {
+    var selectedFrame = computeSelected(
+      cursorStartX,
+      cursorStartY,
+      cursorEndX,
+      cursorEndY
+    );
     drawSelectionBox(selectedFrame);
 
     var selectedFrameRelative = getSelectedRelative(selectedFrame);
     drawSelectedImg(selectedFrameRelative);
 
+    saveImg(selectedFrameRelative);
   }
-})
-
+});
 
 // define the function for computing the selected portion,
 // return an object with coordinates of the selected area
@@ -71,7 +79,7 @@ let computeSelected = (cursorStartX, cursorStartY, cursorEndX, cursorEndY) => {
     left: 0,
     top: 0,
     right: 0,
-    bottom: 0
+    bottom: 0,
   };
 
   // for left and top, we will take the bigger value
@@ -85,9 +93,7 @@ let computeSelected = (cursorStartX, cursorStartY, cursorEndX, cursorEndY) => {
   console.log("Selected Frame: ");
   console.log(selectedFrame);
   return selectedFrame;
-}
-
-
+};
 
 // draw a frame around selected box
 let drawSelectionBox = (selectedFrame) => {
@@ -96,22 +102,21 @@ let drawSelectionBox = (selectedFrame) => {
   div.style.position = "absolute";
   div.style.top = selectedFrame.top + "px";
   div.style.left = selectedFrame.left + "px";
-  // Here's a limitation: since we're using window's size, it will only work on 
+  // Here's a limitation: since we're using window's size, it will only work on
   // screens that are not scrollable
-  div.style.bottom = (window.innerHeight - selectedFrame.bottom) + "px";
-  div.style.right = (window.innerWidth - selectedFrame.right) + "px";
+  div.style.bottom = window.innerHeight - selectedFrame.bottom + "px";
+  div.style.right = window.innerWidth - selectedFrame.right + "px";
 
-  document.querySelector('body').appendChild(div);
+  document.querySelector("body").appendChild(div);
 
   // clean up the variables
   selectedFrame = {
     left: 0,
     top: 0,
     right: 0,
-    bottom: 0
+    bottom: 0,
   };
-}
-
+};
 
 // THE NEXT SECTION IS FOR CANVAS
 
@@ -125,15 +130,17 @@ let getSelectedRelative = (selectedFrame) => {
     right: 0,
     bottom: 0,
     width: 0,
-    height: 0
+    height: 0,
   };
 
   selectedFrameRelative.left = selectedFrame.left - rect.left;
   selectedFrameRelative.right = selectedFrame.right - rect.left;
   selectedFrameRelative.top = selectedFrame.top - rect.top;
   selectedFrameRelative.bottom = selectedFrame.bottom - rect.top;
-  selectedFrameRelative.width = selectedFrameRelative.right - selectedFrameRelative.left;
-  selectedFrameRelative.height = selectedFrameRelative.bottom - selectedFrameRelative.top;
+  selectedFrameRelative.width =
+    selectedFrameRelative.right - selectedFrameRelative.left;
+  selectedFrameRelative.height =
+    selectedFrameRelative.bottom - selectedFrameRelative.top;
 
   // console.log("selectedFrameRelative: ");
   // console.log(selectedFrameRelative.left);
@@ -144,29 +151,69 @@ let getSelectedRelative = (selectedFrame) => {
   // console.log(selectedFrameRelative.height);
 
   return selectedFrameRelative;
-}
-
+};
 
 // draw that onto the same relative spot of the canvas
 let drawSelectedImg = (selectedFrameRelative) => {
-  
-  ctx.drawImage(sketchImg, 
-                selectedFrameRelative.left, 
-                selectedFrameRelative.top, 
-                selectedFrameRelative.width, 
-                selectedFrameRelative.height,
-                selectedFrameRelative.left, 
-                selectedFrameRelative.top,
-                selectedFrameRelative.width, 
-                selectedFrameRelative.height);
-}
+  ctx.drawImage(
+    sketchImg,
+    selectedFrameRelative.left,
+    selectedFrameRelative.top,
+    selectedFrameRelative.width,
+    selectedFrameRelative.height,
+    selectedFrameRelative.left,
+    selectedFrameRelative.top,
+    selectedFrameRelative.width,
+    selectedFrameRelative.height
+  );
+};
 
 // for now, save it as an image object
+// we'll use a new canvas and session storage
 
-// var myImg = new Image();
-// myImg.src = './assets/sketch_sample.jpg';
-// console.log("My Image: ");
-// console.log(myImg);
+let saveImg = (selectedFrameRelative) => {
+  var saveCanvas = document.createElement("canvas");
+  saveCanvas.width = selectedFrameRelative.width;
+  saveCanvas.height = selectedFrameRelative.height;
+  var saveCtx = saveCanvas.getContext("2d");
+  saveCtx.drawImage(
+    c,
+    selectedFrameRelative.left,
+    selectedFrameRelative.top,
+    selectedFrameRelative.width,
+    selectedFrameRelative.height,
+    0,
+    0,
+    selectedFrameRelative.width,
+    selectedFrameRelative.height
+  );
+  // var saveImg = document.createElement('img');
+  var saveImgSrc = saveCanvas.toDataURL("image/png");
+  console.log(saveImgSrc);
+  
+  // var newTab = window.open();
+  // newTab.document.body.innerHTML = '<img src="' + saveImgSrc + '"width="100px" height="100px">';
+
+  // we'll use the url to send a post request to our server
+  var serverUrl = 'http://0882-35-232-71-19.ngrok.io///predict';
+  var xhr = new XMLHttpRequest;
+  xhr.open("POST", serverUrl, true);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  var message = JSON.stringify({
+    url: saveImgSrc
+  });
+  
+
+  xhr.send(message);
+
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+        alert(xhr.responseText);
+    }
+  };
+
+};
+
 },{"dragselect":2}],2:[function(require,module,exports){
 /***
 
